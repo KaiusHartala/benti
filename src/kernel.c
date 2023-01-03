@@ -29,7 +29,7 @@ int main(void) {
     return -1;
   }
   char str[] = "str";
-  print(inttostr(-15, 10));
+  print(inttostr(-15, 2));
   print("ASDF");
   print(str);
 
