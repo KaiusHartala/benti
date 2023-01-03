@@ -1,37 +1,27 @@
 #include "vars.h"
 #include "base.c"
 
-//video memory is 80 * 25
-
-int crash() {
-  printcolor = 0x1f;
-  clearscreen();
-  vidpointer = vidmem;
-  print("Whelp! The OS crashed again. Hope this helps:");
-  print("");
-  print("...");
-  print("Okay so it turns out I was too lazy to print the register values so... enjoy");
-  print("debugging!");
-  return 0;
-}
-
-int init() {
+int _init() {
   vidmem = 0xb8000;
   vidpointer = vidmem;
-  printcolor = 0x0f; //dark mode, nice!
+  printcolor = 0x0f;
   printnewl = 1;
+
   return 0;
 }
 
-int main(void) {
-  if (init() == -1) {
-    crash();
-    return -1;
+int main() {
+  _init();
+
+  for (int i = 0; i < 30; i++) {
+    print(inttostr(i, 10));
   }
-  char str[] = "str";
-  print(inttostr(-15, 2));
-  print("ASDF");
-  print(str);
+  print("asdf");
+  print("asdfasdf");
+  print("asdfasdfasdf");
+  print("Well, I guess this actually works. Now I can finally relax until something inevitably breaks again.");
+  //print("asdf");
+  //print(inttostr(-5, 10));
 
   return 0;
 }

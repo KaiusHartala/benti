@@ -1,37 +1,16 @@
-#include "vars.h"
-
-int strlen(char str[]) {
+int _outb(int addr, int byte) {
+  *(char*)addr = byte;
+  return addr + 1;
+}
+int strlen(char *str) {
   int i;
   for(i = 0; str[i] != '\0'; i++);
   return i;
 }
-
-int readbyte(int val) {
+int _inb(int addr) {
   unsigned char *p;
-  p = (unsigned char*)val;
+  p = (unsigned char*)addr;
   return p[0];
-}
-
-int writebyte(int addr, int val) {
-  *(char*)addr = val;
-  return addr + 1;
-}
-
-int fillline(int line, int val) {
-  for (int i = 0; i < 160; i += 2) {
-    int current = vidmem + (line * 160) + i;
-    writebyte(current, val);
-    writebyte(current + 1, printcolor);
-  }
-  return 0;
-}
-int clearline(int line) {
-  fillline(line, ' ');
-}
-int clearscreen() {
-  for (int i = 0; i < 25; i++) {
-    clearline(i);
-  }
 }
 
 char *inttostr(int val, int base) {
@@ -59,27 +38,31 @@ int scroll() {
     for (int j = 0; j < 160; j += 2) {
       int charaddr = vidmem + (i * 160) + j;
       int coloraddr = charaddr + 1;
-      int val = readbyte(charaddr);
-      int color = readbyte(coloraddr);
-      writebyte(charaddr - 160, val);
-      writebyte(coloraddr - 160, color);
+
+      int character = _inb(charaddr);
+      int color = _inb(coloraddr);
+      _outb(charaddr - 160, character);
+      _outb(coloraddr - 160, color);
     }
   }
 }
 
 int print(char *str) {
+  int length = strlen(str);
+  int lines = length / 160;
+  //for (int i = 0; i < )
   if (vidpointer > vidmem + 3840) {
     scroll();
     vidpointer -= 160;
   }
-  for (int i = 0; i < strlen(str); i++) {
-    vidpointer = writebyte(vidpointer, str[i]);
-    vidpointer = writebyte(vidpointer, printcolor);
+  for (int j = 0; j < length; j++) {
+    vidpointer = _outb(vidpointer, str[j]);
+    vidpointer = _outb(vidpointer, printcolor);
   }
-  if (printnewl == 1) {
-    int length = strlen(str);
+  if (printnewl) {
     while (length > 80) length -= 80;
     vidpointer += 160 - (length * 2);
   }
+
   return 0;
 }
