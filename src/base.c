@@ -45,23 +45,37 @@ int scroll() {
       _outb(coloraddr - 160, color);
     }
   }
+  vidpointer -= 160;
+  for (int i = 0; i < 160; i += 2) {
+    _outb(0xb8000 + 3840 + i, ' ');
+    _outb(0xb8000 + 3840 + i + 1, printcolor);
+  }
 }
 
+int fillscreen(char *str) {
+  int pointer = vidmem;
+  for (int i = 0; i < 2000; i++) {
+    pointer = _outb(pointer, str);
+    pointer = _outb(pointer, printcolor);
+  }
+  return 0;
+}
 int print(char *str) {
   int length = strlen(str);
-  int lines = length / 160;
-  //for (int i = 0; i < )
   if (vidpointer > vidmem + 3840) {
     scroll();
-    vidpointer -= 160;
   }
-  for (int j = 0; j < length; j++) {
-    vidpointer = _outb(vidpointer, str[j]);
+  int linelength = 0;
+  for (int i = 0; i < 80; i++) {
+    char character = str[i];
+    if (character == 0) break;
+    linelength++;
+    vidpointer = _outb(vidpointer, character);
     vidpointer = _outb(vidpointer, printcolor);
   }
   if (printnewl) {
-    while (length > 80) length -= 80;
-    vidpointer += 160 - (length * 2);
+    vidpointer += 160 - (linelength * 2);
+    while (vidpointer > vidmem + 3840) scroll();
   }
 
   return 0;
